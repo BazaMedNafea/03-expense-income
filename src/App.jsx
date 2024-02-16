@@ -3,7 +3,9 @@ import { v4 as uuidv4 } from "uuid";
 import "./App.css";
 
 function App() {
-  const [statements, setStatements] = useState([]);
+  const [statements, setStatements] = useState(
+    JSON.parse(localStorage.getItem("statements")) || []
+  );
   const [input, setInput] = useState({
     statement: "",
     amount: "",
@@ -16,6 +18,7 @@ function App() {
   const [total, setTotal] = useState(0);
 
   useEffect(() => {
+    localStorage.setItem("statements", JSON.stringify(statements));
     const newTotal = statements.reduce((sum, { type, amount }) => {
       if (type === "expense") {
         return sum - parseFloat(amount);
@@ -59,7 +62,6 @@ function App() {
         statement: false,
         amount: false,
       });
-      // ADD LOGIC TO ADD STATMENT
       setStatements([
         ...statements,
         {
@@ -75,6 +77,13 @@ function App() {
         amount: "",
         statementType: "income",
       });
+    }
+  };
+
+  const handleResetStatements = () => {
+    if (window.confirm("Are you sure you want to reset the statements?")) {
+      localStorage.removeItem("statements");
+      setStatements([]);
     }
   };
 
@@ -112,6 +121,7 @@ function App() {
             <option value="expense">Expense</option>
           </select>
           <button onClick={handleAddNewStatement}>+</button>
+          <button onClick={handleResetStatements}>Reset Statements</button>
         </div>
         <div>
           {statements.map(({ name, type, amount, date, id }) => (
